@@ -1,10 +1,9 @@
+#include "Drum.h"
 #include "Interface.h"
 #include "SamplePlayer.h"
 #include "AudioSamplePiano_c3_44k.h"
 
 //#define SHOW_PERF
-
-constexpr int         NUM_VOICES_PER_DRUM(2);
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
@@ -17,25 +16,20 @@ constexpr int         ADC_MAX_VAL(8192);
 
 constexpr int         TRIG_FLASH_TIME_MS(100);
 
-constexpr float       DRUM_VOICE_MIX( 1.0f / NUM_VOICES_PER_DRUM );
-
 LED                   trig_led(RESET_LED_PIN, false);
 BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
-SAMPLE_PLAYER_EFFECT  drum_1_player_1;
-SAMPLE_PLAYER_EFFECT  drum_1_player_2;
+DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
 
 AudioMixer4           drum_1_mixer;
 
 AudioOutputAnalog     audio_output;
 
-AudioConnection       patch_cord_1( drum_1_player_1, 0, drum_1_mixer, 0 );
-AudioConnection       patch_cord_2( drum_1_player_2, 0, drum_1_mixer, 1 );
+AudioConnection       patch_cord_1( drum_1.voice(0), 0, drum_1_mixer, 0 );
+AudioConnection       patch_cord_2( drum_1.voice(1), 0, drum_1_mixer, 1 );
 AudioConnection       patch_cord_3( drum_1_mixer, 0, audio_output, 0 );
-
-POLYPHONIC_SAMPLE_PLAYER<NUM_VOICES_PER_DRUM>  drum_1_poly_player( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
 
 volatile boolean g_triggered = false;
 
@@ -59,13 +53,7 @@ void setup()
   // Add an interrupt on the RESET_CV pin to catch rising edges
   attachInterrupt( digitalPinToInterrupt(TRIG_CV_PIN), notify_trigger, RISING );
 
-  drum_1_poly_player.add_sample_player( drum_1_player_1 );
-  drum_1_poly_player.add_sample_player( drum_1_player_2 );
-
-  for( int i = 0; i < 4; ++i )
-  {
-    drum_1_mixer.gain( i, DRUM_VOICE_MIX );
-  }
+  drum_1_mixer.gain( 0, drum_1.voice_mix() );
 
   trig_led.setup();
   trig_button.setup();

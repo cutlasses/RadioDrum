@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Audio.h>
 #include "FixedPoint.h"
 #include "Util.h"
