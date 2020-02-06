@@ -22,6 +22,7 @@ DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
 DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
+SEQUENCE              sequence_1(drum_1);
 
 AudioMixer4           drum_1_mixer;
 
@@ -77,6 +78,7 @@ void loop()
   {
     g_triggered = false;
 
+    sequence_1.clock();
   }
 
 #ifdef SHOW_PERF
