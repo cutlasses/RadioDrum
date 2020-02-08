@@ -26,10 +26,19 @@ public:
 
 class SEQUENCE
 {
-  static constexpr int SEQUENCE_SIZE                      = 8;
+  struct TRIGGER
+  {
+    int8_t                                                m_pitch             = -1;
+    uint8_t                                               m_velocity          = 255;
+  };
+  
+  static constexpr int MAX_SEQUENCE_SIZE                  = 16;
   DRUM&                                                   m_drum;
-  std::array<int8_t, SEQUENCE_SIZE>                       m_sequence;
+  std::array<TRIGGER, MAX_SEQUENCE_SIZE>                  m_sequence;
   int8_t                                                  m_beat              = 0;
+  int8_t                                                  m_sequence_size     = 0;
+
+  bool                                                    read(File& file);
   
 public:
 

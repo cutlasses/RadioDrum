@@ -22,17 +22,24 @@ void DRUM::trigger()
 SEQUENCE::SEQUENCE( DRUM& drum ) :
   m_drum(drum)
 {
-  
+  // default sequence
+  m_sequence_size = 8;
+//  m_sequence      = { {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255} };
+}
+
+bool SEQUENCE::read(File& file)
+{
+  return false;
 }
 
 void SEQUENCE::clock()
 {
-  const int8_t trig = m_sequence[m_beat];
-  if( trig >= 0 )
+  const TRIGGER& trig = m_sequence[m_beat];
+  if( trig.m_pitch >= 0 )
   {
     // TODO use value to set pitch
     m_drum.trigger();
   }
 
-  m_beat = (m_beat + 1) % SEQUENCE_SIZE;
+  m_beat = (m_beat + 1) % m_sequence_size;
 }
