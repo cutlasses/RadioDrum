@@ -1,3 +1,6 @@
+#include "CompileSwitches.h"
+#include "Util.h"
+
 #include "Drum.h"
 
 ////////////////////////////////////////////////////////////
@@ -29,7 +32,62 @@ SEQUENCE::SEQUENCE( DRUM& drum ) :
 
 bool SEQUENCE::read(File& file)
 {
-  return false;
+  m_sequence_size = 0;
+  char c;
+  while( file.available() > 0 && (c = file.read()) != '\n')
+  {
+    if( c == '-' )
+    {
+      // no trigger
+      m_sequence[m_sequence_size++] = { TRIGGER::EMPTY, 0 };
+
+       DEBUG_TEXT("Trig{EMPTY}");
+    }
+    else if( c == '{' )
+    {
+      auto read_int = [&file](char terminator) -> int
+      {
+        const int BUFFER_SIZE = 256;
+        char buffer[BUFFER_SIZE];
+        int bi = 0;
+        char c;
+        while( file.available() > 0 && (c = file.read()) != terminator && bi < BUFFER_SIZE )
+        {
+          buffer[bi++] = c;
+        }
+        buffer[bi] = '\0';
+
+        if( bi == 0 )
+        {
+          DEBUG_TEXT_LINE("Unable to read trigger");
+          return 0;
+        }
+        else if( bi >= BUFFER_SIZE )
+        {
+          DEBUG_TEXT_LINE("Trigger too large");
+          return 0;
+        }
+               
+        return atoi(buffer);       
+      };
+
+      const int8_t pitch            = read_int(',');
+      const uint8_t velocity        = read_int('}');
+
+      m_sequence[m_sequence_size++] = { pitch, velocity };
+
+      DEBUG_TEXT("Trig{");
+      DEBUG_TEXT(pitch);
+      DEBUG_TEXT(",");
+      DEBUG_TEXT(velocity);
+      DEBUG_TEXT("} ");
+    }
+    else
+    {
+      DEBUG_TEXT_LINE("Unknown character at beginning of trigger");
+    }
+  }
+  return m_sequence_size > 0;
 }
 
 void SEQUENCE::clock()
@@ -37,9 +95,17 @@ void SEQUENCE::clock()
   const TRIGGER& trig = m_sequence[m_beat];
   if( trig.m_pitch >= 0 )
   {
-    // TODO use value to set pitch
+    // TODO use value to set pitch and volume
     m_drum.trigger();
   }
 
   m_beat = (m_beat + 1) % m_sequence_size;
 }
+
+////////////////////////////////////////////////////////////
+
+PATTERN::PATTERN( char* filename, const DRUM_SET& drums )
+{
+  
+}
+

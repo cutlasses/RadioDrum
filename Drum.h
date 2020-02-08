@@ -7,7 +7,7 @@
 
 class DRUM
 {
-  static constexpr int NUM_VOICES_PER_DRUM                  = 2;
+  static constexpr int NUM_VOICES_PER_DRUM                                    = 2;
   
   std::array< SAMPLE_PLAYER_EFFECT, NUM_VOICES_PER_DRUM>    m_voices;
   POLYPHONIC_SAMPLE_PLAYER<NUM_VOICES_PER_DRUM>             m_poly_player;
@@ -22,17 +22,21 @@ public:
   void                                                   trigger();
 };
 
+static constexpr int MAX_DRUMS                                                = 5;
+using DRUM_SET = std::array<DRUM*, MAX_DRUMS>;
+
 ////////////////////////////////////////////////////////////
 
 class SEQUENCE
 {
   struct TRIGGER
   {
-    int8_t                                                m_pitch             = -1;
+    static constexpr int EMPTY                                                = -1;
+    int8_t                                                m_pitch             = EMPTY;
     uint8_t                                               m_velocity          = 255;
   };
   
-  static constexpr int MAX_SEQUENCE_SIZE                  = 16;
+  static constexpr int MAX_SEQUENCE_SIZE                                      = 16;
   DRUM&                                                   m_drum;
   std::array<TRIGGER, MAX_SEQUENCE_SIZE>                  m_sequence;
   int8_t                                                  m_beat              = 0;
@@ -45,3 +49,15 @@ public:
   SEQUENCE( DRUM& drum );
   void                                                    clock();
 };
+
+////////////////////////////////////////////////////////////
+
+// a PATTERN ties together each drum to each sequence
+class PATTERN
+{
+  
+public:
+
+  PATTERN( char* filename, const DRUM_SET& drums );  
+};
+

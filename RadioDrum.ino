@@ -1,9 +1,13 @@
 #include "Drum.h"
+#include "CompileSwitches.h"
+
 #include "Interface.h"
 #include "SamplePlayer.h"
 #include "AudioSampleKick.h"
-
-//#define SHOW_PERF
+#include "AudioSampleAddhit1.h"
+#include "AudioSampleAddreturn.h"
+#include "AudioSampleFirehit.h"
+#include "AudioSamplePop.h"
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
@@ -22,7 +26,17 @@ DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
 DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );
+DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleAddhit1[0])) );
+DRUM                  drum_3( reinterpret_cast<const uint16_t*>(&(AudioSampleAddreturn[0])) );
+DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSamplePop[0])) );
+DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );
+
 SEQUENCE              sequence_1(drum_1);
+SEQUENCE              sequence_2(drum_2);
+SEQUENCE              sequence_3(drum_3);
+SEQUENCE              sequence_4(drum_4);
+SEQUENCE              sequence_5(drum_5);
+
 
 AudioMixer4           drum_1_mixer;
 
