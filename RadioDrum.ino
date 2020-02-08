@@ -31,11 +31,7 @@ DRUM                  drum_3( reinterpret_cast<const uint16_t*>(&(AudioSampleAdd
 DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSamplePop[0])) );
 DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );
 
-SEQUENCE              sequence_1(drum_1);
-SEQUENCE              sequence_2(drum_2);
-SEQUENCE              sequence_3(drum_3);
-SEQUENCE              sequence_4(drum_4);
-SEQUENCE              sequence_5(drum_5);
+PATTERN               pattern_1;
 
 
 AudioMixer4           drum_1_mixer;
@@ -70,6 +66,14 @@ void setup()
 
   drum_1_mixer.gain( 0, drum_1.voice_mix() );
 
+  DRUM_SET drums;
+  drums[0] = &drum_1;
+  drums[1] = &drum_2;
+  drums[2] = &drum_3;
+  drums[3] = &drum_4;
+  drums[4] = &drum_5;
+  pattern_1.read("p1.txt", drums);
+
   trig_led.setup();
   trig_button.setup();
 
@@ -92,7 +96,7 @@ void loop()
   {
     g_triggered = false;
 
-    sequence_1.clock();
+    pattern_1.clock();
   }
 
 #ifdef SHOW_PERF

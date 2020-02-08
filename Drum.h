@@ -37,27 +37,32 @@ class SEQUENCE
   };
   
   static constexpr int MAX_SEQUENCE_SIZE                                      = 16;
-  DRUM&                                                   m_drum;
+  DRUM*                                                   m_drum              = nullptr;
   std::array<TRIGGER, MAX_SEQUENCE_SIZE>                  m_sequence;
   int8_t                                                  m_beat              = 0;
   int8_t                                                  m_sequence_size     = 0;
-
-  bool                                                    read(File& file);
   
 public:
 
+  SEQUENCE()                                              {}
   SEQUENCE( DRUM& drum );
+
+  bool                                                    read(File& file);
   void                                                    clock();
 };
+
+using SEQUENCE_SET = std::array<SEQUENCE, MAX_DRUMS>;
 
 ////////////////////////////////////////////////////////////
 
 // a PATTERN ties together each drum to each sequence
 class PATTERN
 {
+  SEQUENCE_SET                                            m_sequences;
   
 public:
 
-  PATTERN( char* filename, const DRUM_SET& drums );  
-};
+  void                                                    read( const char* filename, const DRUM_SET& drums ); 
 
+  void                                                    clock();                             
+};

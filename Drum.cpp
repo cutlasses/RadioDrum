@@ -23,7 +23,7 @@ void DRUM::trigger()
 ////////////////////////////////////////////////////////////
 
 SEQUENCE::SEQUENCE( DRUM& drum ) :
-  m_drum(drum)
+  m_drum(&drum)
 {
   // default sequence
   m_sequence_size = 8;
@@ -96,7 +96,7 @@ void SEQUENCE::clock()
   if( trig.m_pitch >= 0 )
   {
     // TODO use value to set pitch and volume
-    m_drum.trigger();
+    m_drum->trigger();
   }
 
   m_beat = (m_beat + 1) % m_sequence_size;
@@ -104,8 +104,38 @@ void SEQUENCE::clock()
 
 ////////////////////////////////////////////////////////////
 
-PATTERN::PATTERN( char* filename, const DRUM_SET& drums )
+void PATTERN::read( const char* filename, const DRUM_SET& drums ) 
 {
-  
+  File pattern_file = SD.open(filename);
+
+  if( !pattern_file )
+  {
+    DEBUG_TEXT("Unable to open file:");
+    DEBUG_TEXT_LINE(filename);
+  }
+
+  size_t di = 0;
+  for( DRUM* drum : drums )
+  {
+    m_sequences[di++] = SEQUENCE(*drum);
+  }
+
+  size_t num_sequences = 0;
+  while( num_sequences < m_sequences.size() && m_sequences[num_sequences].read(pattern_file) )
+  {
+    ++num_sequences;
+  }
+
+  if( di != num_sequences )
+  {
+    DEBUG_TEXT_LINE("Inconsistent number of sequences and drums");
+  }
 }
 
+void PATTERN::clock()
+{
+  for( SEQUENCE& seq : m_sequences )
+  {
+    seq.clock();
+  }
+}
