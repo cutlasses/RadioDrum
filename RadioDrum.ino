@@ -52,6 +52,15 @@ void notify_trigger()
 void setup()
 {
   Serial.begin(9600);
+#ifdef DEBUG_OUTPUT
+  serial_port_initialised = true;
+  while(!Serial);
+#endif
+
+  // initialise SD card
+  SPI.setMOSI(7);
+  SPI.setSCK(14);
+  SD.begin();
 
   AudioMemory(64);
 
@@ -78,6 +87,8 @@ void setup()
   trig_button.setup();
 
   delay(100);
+
+  DEBUG_TEXT("Setup complete");
 }
 
 void loop()

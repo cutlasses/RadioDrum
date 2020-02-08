@@ -106,7 +106,7 @@ void SEQUENCE::clock()
 
 void PATTERN::read( const char* filename, const DRUM_SET& drums ) 
 {
-  File pattern_file = SD.open(filename);
+  File pattern_file = SD.open(filename, FILE_READ);
 
   if( !pattern_file )
   {
