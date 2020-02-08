@@ -1,7 +1,7 @@
 #include "Drum.h"
 #include "Interface.h"
 #include "SamplePlayer.h"
-#include "AudioSamplePiano_c3_44k.h"
+#include "AudioSampleKick.h"
 
 //#define SHOW_PERF
 
@@ -21,7 +21,7 @@ BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
-DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSamplePiano_c3_44k[0])) );
+DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );
 SEQUENCE              sequence_1(drum_1);
 
 AudioMixer4           drum_1_mixer;
