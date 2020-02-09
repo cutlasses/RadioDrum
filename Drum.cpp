@@ -25,9 +25,6 @@ void DRUM::trigger()
 SEQUENCE::SEQUENCE( DRUM& drum ) :
   m_drum(&drum)
 {
-  // default sequence
-  m_sequence_size = 8;
-//  m_sequence      = { {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255}, {0,255} };
 }
 
 bool SEQUENCE::read(File& file)
@@ -123,6 +120,7 @@ bool SEQUENCE::read(File& file)
     }
   }
 
+  DEBUG_TEXT(m_sequence_size);
   DEBUG_TEXT_LINE(" <END>");
   return m_sequence_size > 0;
 }
@@ -134,6 +132,8 @@ void SEQUENCE::clock()
   {
     // TODO use value to set pitch and volume
     m_drum->trigger();
+
+    DEBUG_TEXT_LINE("TRIG");
   }
 
   m_beat = (m_beat + 1) % m_sequence_size;

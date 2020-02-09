@@ -37,7 +37,7 @@ class SEQUENCE
     uint8_t                                               m_velocity          = 255;
   };
   
-  static constexpr int MAX_SEQUENCE_SIZE                                      = 16;
+  static constexpr int MAX_SEQUENCE_SIZE                                      = 32;
   DRUM*                                                   m_drum              = nullptr;
   std::array<TRIGGER, MAX_SEQUENCE_SIZE>                  m_sequence;
   int8_t                                                  m_beat              = 0;

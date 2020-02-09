@@ -28,19 +28,34 @@ DIAL                  chord_dial(CHORD_POT_PIN);
 DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );
 DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleAddhit1[0])) );
 DRUM                  drum_3( reinterpret_cast<const uint16_t*>(&(AudioSampleAddreturn[0])) );
-DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSamplePop[0])) );
-DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );
+DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );
+DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSamplePop[0])) );
 
 PATTERN               pattern_1;
 
 
 AudioMixer4           drum_1_mixer;
+AudioMixer4           drum_2_mixer;
+AudioMixer4           drum_3_mixer;
+AudioMixer4           drum_4_mixer;
+AudioMixer4           master_drum_mixer;
 
 AudioOutputAnalog     audio_output;
 
 AudioConnection       patch_cord_1( drum_1.voice(0), 0, drum_1_mixer, 0 );
 AudioConnection       patch_cord_2( drum_1.voice(1), 0, drum_1_mixer, 1 );
-AudioConnection       patch_cord_3( drum_1_mixer, 0, audio_output, 0 );
+AudioConnection       patch_cord_3( drum_2.voice(0), 0, drum_2_mixer, 0 );
+AudioConnection       patch_cord_4( drum_2.voice(1), 0, drum_2_mixer, 1 );
+AudioConnection       patch_cord_5( drum_3.voice(0), 0, drum_3_mixer, 0 );
+AudioConnection       patch_cord_6( drum_3.voice(1), 0, drum_3_mixer, 1 );
+AudioConnection       patch_cord_7( drum_4.voice(0), 0, drum_4_mixer, 0 );
+AudioConnection       patch_cord_8( drum_4.voice(1), 0, drum_4_mixer, 1 );
+AudioConnection       patch_cord_9( drum_1_mixer, 0, master_drum_mixer, 0 );
+AudioConnection       patch_cord_10( drum_2_mixer, 0, master_drum_mixer, 1 );
+AudioConnection       patch_cord_11( drum_3_mixer, 0, master_drum_mixer, 2 );
+AudioConnection       patch_cord_12( drum_4_mixer, 0, master_drum_mixer, 3 );
+AudioConnection       patch_cord_13( master_drum_mixer, 0, audio_output, 0 );
+AudioConnection       patch_cord_14( master_drum_mixer, 1, audio_output, 1 );
 
 volatile boolean g_triggered = false;
 
@@ -90,6 +105,8 @@ void setup()
   };
 
   setup_mix( drum_1_mixer, drum_1.num_voices_per_drum(), drum_1.voice_mix() );
+
+  setup_mix( drum_4_mixer, 4, 0.25f );
 
   trig_led.setup();
   trig_button.setup();
