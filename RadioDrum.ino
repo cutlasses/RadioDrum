@@ -73,8 +73,6 @@ void setup()
   // Add an interrupt on the RESET_CV pin to catch rising edges
   attachInterrupt( digitalPinToInterrupt(TRIG_CV_PIN), notify_trigger, RISING );
 
-  drum_1_mixer.gain( 0, drum_1.voice_mix() );
-
   DRUM_SET drums;
   drums[0] = &drum_1;
   drums[1] = &drum_2;
@@ -82,6 +80,16 @@ void setup()
   drums[3] = &drum_4;
   drums[4] = &drum_5;
   pattern_1.read("p1.txt", drums);
+
+  auto setup_mix =[](AudioMixer4& mixer, int num_channels, float gain)
+  {
+    for( int ci = 0; ci < num_channels; ++ci )
+    {
+      drum_1_mixer.gain(ci, gain );
+    }    
+  };
+
+  setup_mix( drum_1_mixer, drum_1.num_voices_per_drum(), drum_1.voice_mix() );
 
   trig_led.setup();
   trig_button.setup();
@@ -108,6 +116,8 @@ void loop()
     g_triggered = false;
 
     pattern_1.clock();
+
+    trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
   }
 
 #ifdef SHOW_PERF

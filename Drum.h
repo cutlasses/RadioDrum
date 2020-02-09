@@ -16,8 +16,9 @@ public:
 
   DRUM( const uint16_t* sample_data );
 
-  inline SAMPLE_PLAYER_EFFECT&                           voice( int vi )      { return m_voices[vi]; }
-  static constexpr float                                 voice_mix()          { return 1.0f / NUM_VOICES_PER_DRUM; }
+  inline SAMPLE_PLAYER_EFFECT&                           voice( int vi )        { return m_voices[vi]; }
+  static constexpr int                                   num_voices_per_drum()  { return NUM_VOICES_PER_DRUM; }
+  static constexpr float                                 voice_mix()            { return 1.0f / NUM_VOICES_PER_DRUM; }
 
   void                                                   trigger();
 };
