@@ -33,15 +33,45 @@ SEQUENCE::SEQUENCE( DRUM& drum ) :
 bool SEQUENCE::read(File& file)
 {
   m_sequence_size = 0;
-  char c;
-  while( file.available() > 0 && (c = file.read()) != '\n')
+
+  auto consume_comma_check_end = [&file]() -> bool
   {
+    if( file.available() == 0 )
+    {
+      return true;
+    }
+    
+    char c = file.read();
+    if( c == ',' )
+    {
+     return false;
+    }
+    else if( c == '\n' )
+    {
+      return true;
+    }
+    else
+    {
+      DEBUG_TEXT("Expected comma or new line");
+      return true;
+    }
+  };
+  
+  while( file.available() > 0 )
+  {
+    char c = file.read();
+
     if( c == '-' )
     {
       // no trigger
       m_sequence[m_sequence_size++] = { TRIGGER::EMPTY, 0 };
 
-       DEBUG_TEXT("Trig{EMPTY}");
+       DEBUG_TEXT("Trig{EMPTY} ");
+
+       if( consume_comma_check_end() )
+       {
+        break;
+       }
     }
     else if( c == '{' )
     {
@@ -81,12 +111,19 @@ bool SEQUENCE::read(File& file)
       DEBUG_TEXT(",");
       DEBUG_TEXT(velocity);
       DEBUG_TEXT("} ");
+
+       if( consume_comma_check_end() )
+       {
+        break;
+       }
     }
     else
     {
       DEBUG_TEXT_LINE("Unknown character at beginning of trigger");
     }
   }
+
+  DEBUG_TEXT_LINE(" <END>");
   return m_sequence_size > 0;
 }
 
