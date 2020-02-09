@@ -54,7 +54,7 @@ void setup()
   Serial.begin(9600);
 #ifdef DEBUG_OUTPUT
   serial_port_initialised = true;
-  while(!Serial);
+  //while(!Serial);
 #endif
 
   // initialise SD card
