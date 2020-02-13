@@ -2,7 +2,9 @@
 #include "CompileSwitches.h"
 
 #include "Interface.h"
+#include "MultiMixer.h"
 #include "SamplePlayer.h"
+
 #include "AudioSampleKick.h"
 #include "AudioSampleAddhit1.h"
 #include "AudioSampleAddreturn.h"
@@ -34,11 +36,11 @@ DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSamplePop
 PATTERN               pattern_1;
 
 
-AudioMixer4           drum_1_mixer;
-AudioMixer4           drum_2_mixer;
-AudioMixer4           drum_3_mixer;
-AudioMixer4           drum_4_mixer;
-AudioMixer4           master_drum_mixer;
+MultiMixer4           drum_1_mixer;
+MultiMixer4           drum_2_mixer;
+MultiMixer4           drum_3_mixer;
+MultiMixer4           drum_4_mixer;
+MultiMixer4           master_drum_mixer;
 
 AudioOutputAnalog     audio_output;
 
@@ -96,7 +98,7 @@ void setup()
   drums[4] = &drum_5;
   pattern_1.read("p1.txt", drums);
 
-  auto setup_mix =[](AudioMixer4& mixer, int num_channels, float gain)
+  auto setup_mix =[](MultiMixer4& mixer, int num_channels, float gain)
   {
     for( int ci = 0; ci < num_channels; ++ci )
     {
