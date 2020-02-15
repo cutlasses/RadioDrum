@@ -22,6 +22,8 @@ constexpr int         ADC_MAX_VAL(8192);
 
 constexpr int         TRIG_FLASH_TIME_MS(100);
 
+constexpr uint32_t    MAX_DELAY_TIME_MS(180);    // memory is limited, so only short delays possible
+
 LED                   trig_led(RESET_LED_PIN, false);
 BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
@@ -162,7 +164,7 @@ void setup()
   
   delay_mixer.set_gain( 5, 0.6f );    // feed back
 
-  delay_effect.delay( 0, 200 );
+  delay_effect.delay( 0, 190 );
 
   // set master mixer
   final_mixer.set_gain_all_channels( 1.0f );
@@ -196,7 +198,17 @@ void loop()
     trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
   }
 
-  DEBUG_TEXT_LINE(g_delta_time_ms);
+  // update delay sync
+  static uint32_t current_delay_ms = 0;
+  uint32_t desired_delay_ms   = g_delta_time_ms;
+  desired_delay_ms            = clamp<uint32_t>( desired_delay_ms, 0, MAX_DELAY_TIME_MS );
+  if( abs(current_delay_ms - desired_delay_ms) > 5 )
+  {
+    current_delay_ms          = desired_delay_ms;
+    DEBUG_TEXT("Set delay:");
+    DEBUG_TEXT_LINE(desired_delay_ms);
+    delay_effect.delay(0, desired_delay_ms);
+  }
 
 #ifdef SHOW_PERF
   int perf_time = millis();
