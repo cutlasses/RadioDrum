@@ -6,10 +6,10 @@
 #include "SamplePlayer.h"
 
 #include "AudioSampleKick.h"
-#include "AudioSampleAddhit1.h"
-#include "AudioSampleAddreturn.h"
+#include "AudioSampleType.h"
+#include "AudioSampleReturn.h"
 #include "AudioSampleFirehit.h"
-#include "AudioSamplePop.h"
+#include "AudioSampleTink.h"
 
 constexpr int         NOTE_CV_PIN(A8);    // ROOT - on panel
 constexpr int         TRIG_CV_PIN(9);     // TRIG - on panel
@@ -27,11 +27,12 @@ BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
 
-DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );
-DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleAddhit1[0])) );
-DRUM                  drum_3( reinterpret_cast<const uint16_t*>(&(AudioSampleAddreturn[0])) );
-DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );
-DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSamplePop[0])) );
+DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );               // synthesised kick
+DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleType[0])) );               // vintage adding machine key press
+DRUM                  drum_3( reinterpret_cast<const uint16_t*>(&(AudioSampleReturn[0])) );             // vintage adding machine carriage return
+DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSampleTink[0])) );               // vintage adding machine carriage return 2
+DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );            // hitting a cast iron fire
+
 
 PATTERN               pattern_1;
 
@@ -140,17 +141,17 @@ void setup()
 
   // set the reverb
   reverb_mixer.set_gain( 0, 0.0f );   // kick drum
-  reverb_mixer.set_gain( 1, 0.2f );   // add hit
-  reverb_mixer.set_gain( 2, 0.2f );   // add return
-  reverb_mixer.set_gain( 3, 0.2f );   // fire hit
-  reverb_mixer.set_gain( 4, 0.2f );   // pop
+  reverb_mixer.set_gain( 1, 0.1f );   // add type
+  reverb_mixer.set_gain( 2, 0.1f );   // add return
+  reverb_mixer.set_gain( 3, 0.2f );   // add tink
+  reverb_mixer.set_gain( 4, 0.4f );   // fire hit
 
   //set the delay
   delay_mixer.set_gain( 0, 0.0f );    // kick drum
-  delay_mixer.set_gain( 1, 0.4f );    // add hit
+  delay_mixer.set_gain( 1, 0.4f );    // add type
   delay_mixer.set_gain( 2, 0.4f );    // add return
-  delay_mixer.set_gain( 3, 0.4f );    // fire hit
-  delay_mixer.set_gain( 4, 0.4f );    // pop
+  delay_mixer.set_gain( 3, 0.4f );    // add tink
+  delay_mixer.set_gain( 4, 0.4f );    // fire hit
   delay_mixer.set_gain( 5, 0.4f );    // feed back
 
   // set master mixer

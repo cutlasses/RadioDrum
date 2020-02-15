@@ -1,9 +1,9 @@
 // Audio data converted from WAV file by wav2sketch
 
-#include "AudioSampleAddhit1.h"
+#include "AudioSampleType.h"
 
-// Converted from addhit1.wav, using 44100 Hz, 16 bit PCM encoding
-const unsigned int AudioSampleAddhit1[3649] = {
+// Converted from type.wav, using 44100 Hz, 16 bit PCM encoding
+const unsigned int AudioSampleType[3649] = {
 0x81001C2C,0xFFB000F9,0x0063FED3,0x01620189,0xFFA00007,0x02500122,0xFEE300D8,0x0227FFB8,
 0x046F0443,0x01C80305,0x02CC01F0,0x033502E5,0x049A0424,0x021D03B1,0x03070190,0x037204B5,
 0x0B690208,0xF72D1EEA,0x0AE0EA9A,0x150703C3,0xF631EA28,0x0EACED21,0xE7813398,0x1D39BBFB,
