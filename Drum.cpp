@@ -15,9 +15,9 @@ DRUM::DRUM( const uint16_t* sample_data ) :
   }
 }
 
-void DRUM::trigger()
+void DRUM::trigger( int pitch, float gain )
 {
-  m_poly_player.play(1.0f);
+  m_poly_player.play_at_pitch(pitch, gain);
 }
 
 ////////////////////////////////////////////////////////////
@@ -131,9 +131,12 @@ void SEQUENCE::clock()
   if( trig.m_pitch >= 0 )
   {
     // TODO use value to set pitch and volume
-    m_drum->trigger();
+    m_drum->trigger(trig.m_pitch, trig.m_velocity / 255.0f);
 
-    DEBUG_TEXT_LINE("TRIG");
+    DEBUG_TEXT("TRIG p:");
+    DEBUG_TEXT(trig.m_pitch);
+    DEBUG_TEXT(" v:");
+    DEBUG_TEXT_LINE(trig.m_velocity / 255.0f);
   }
 
   m_beat = (m_beat + 1) % m_sequence_size;

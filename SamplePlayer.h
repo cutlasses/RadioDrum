@@ -17,6 +17,7 @@ class SAMPLE_PLAYER_EFFECT : public AudioStream
 
   FIXED_POINT           m_speed;
   FIXED_POINT           m_read_head;
+  FIXED_POINT           m_gain;
 
   //int16_t               read_sample_linear() const;
   int16_t               read_sample_linear_fp() const;
@@ -27,7 +28,7 @@ class SAMPLE_PLAYER_EFFECT : public AudioStream
   SAMPLE_PLAYER_EFFECT();
   virtual void          update() override;
 
-  void                  play( const uint16_t* sample_data, int sample_length, float speed );
+  void                  play( const uint16_t* sample_data, int sample_length, float speed, float gain );
   void                  stop();
 
   inline bool           playing() const                 { return m_sample_data != nullptr; }
@@ -75,11 +76,11 @@ class POLYPHONIC_SAMPLE_PLAYER
     m_sample_players[ m_num_voices++ ] = &sample_player;
   }
 
-  void                  play( float speed )
+  void                  play( float speed, float gain )
   {
     SAMPLE_PLAYER_EFFECT& sample_player = *m_sample_players[ m_next_voice ];
     sample_player.stop();
-    sample_player.play( m_sample_data, m_sample_length, speed );
+    sample_player.play( m_sample_data, m_sample_length, speed, gain );
 
     if( ++m_next_voice == m_num_voices )
     {
@@ -87,7 +88,7 @@ class POLYPHONIC_SAMPLE_PLAYER
     }
   }
 
-  void                  play_at_pitch( int semitone )
+  void                  play_at_pitch( int semitone, float gain )
   {
     // semitone 0 = 0.5x speed
     // semitone 1 = 1x speed
@@ -97,7 +98,7 @@ class POLYPHONIC_SAMPLE_PLAYER
     const int offset_semitone = semitone - semitone_offset;
     const float speed = powf( 2.0f, offset_semitone / 12.0f );
 
-    play( speed );
+    play( speed, gain );
   }
 
   void                play_at_quantised_pitch( int semitone )

@@ -103,7 +103,7 @@ void setup()
   Serial.begin(9600);
 #ifdef DEBUG_OUTPUT
   serial_port_initialised = true;
-  //while(!Serial);
+  while(!Serial);
 #endif
 
   // initialise SD card
@@ -128,7 +128,7 @@ void setup()
   drums[2] = &drum_3;
   drums[3] = &drum_4;
   drums[4] = &drum_5;
-  pattern_1.read("p1.txt", drums);
+  pattern_1.read("p2.txt", drums);
 
   // set mix for drum voices within each drum
   drum_1_mixer.set_gain_all_channels( drum_1.voice_mix() );

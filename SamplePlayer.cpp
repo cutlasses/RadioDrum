@@ -3,6 +3,7 @@
 
 constexpr FIXED_POINT FIXED_POINT_ZERO( 0.0f );
 constexpr FIXED_POINT FIXED_POINT_HALF( 0.5f );
+constexpr FIXED_POINT FIXED_POINT_ONE( 1.0f );
 constexpr FIXED_POINT FIXED_POINT_TWO( 2.0f );
 
 SAMPLE_PLAYER_EFFECT::SAMPLE_PLAYER_EFFECT() :
@@ -11,7 +12,8 @@ SAMPLE_PLAYER_EFFECT::SAMPLE_PLAYER_EFFECT() :
   m_sample_data(nullptr),
   m_sample_length(0),
   m_speed(1.0f),
-  m_read_head(0.0f)
+  m_read_head(0.0f),
+  m_gain(0.0f)
 {
 }
 
@@ -54,7 +56,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_linear_fp() const
     
     const int16_t next_samp = m_sample_data[ next ];
     
-    FIXED_POINT lerp_samp   = lerp<FIXED_POINT>( FIXED_POINT(curr_samp), FIXED_POINT(next_samp), t );
+    FIXED_POINT lerp_samp   = lerp<FIXED_POINT>( FIXED_POINT(curr_samp), FIXED_POINT(next_samp), t ) * m_gain;
      
     return lerp_samp.trunc_to_int16();
   }
@@ -102,7 +104,7 @@ int16_t SAMPLE_PLAYER_EFFECT::read_sample_cubic_fp() const
   
   const FIXED_POINT t         = lerp<FIXED_POINT>( FIXED_POINT(0.33333f), FIXED_POINT(0.66666f), frac_part );
   
-  const FIXED_POINT sampf     = cubic_interpolation<FIXED_POINT>( p0, p1, p2, p3, t );
+  const FIXED_POINT sampf     = cubic_interpolation<FIXED_POINT>( p0, p1, p2, p3, t ) * m_gain;
   
   return sampf.trunc_to_int16();
 }
@@ -142,12 +144,13 @@ void SAMPLE_PLAYER_EFFECT::update()
   }
 }
 
-void SAMPLE_PLAYER_EFFECT::play( const uint16_t* sample_data, int sample_length, float speed )
+void SAMPLE_PLAYER_EFFECT::play( const uint16_t* sample_data, int sample_length, float speed, float gain )
 {
   m_sample_data   = sample_data;
   m_sample_length = sample_length;
   m_speed         = FIXED_POINT(speed);
   m_read_head     = FIXED_POINT_ZERO;
+  m_gain          = FIXED_POINT(gain);
 }
 
 void SAMPLE_PLAYER_EFFECT::stop()
@@ -155,5 +158,6 @@ void SAMPLE_PLAYER_EFFECT::stop()
   m_sample_data   = nullptr;
   m_sample_length = 0;
   m_read_head     = FIXED_POINT_ZERO;
+  m_gain          = FIXED_POINT_ONE;
 }
 
