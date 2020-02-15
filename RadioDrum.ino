@@ -112,7 +112,7 @@ void setup()
   Serial.begin(9600);
 #ifdef DEBUG_OUTPUT
   serial_port_initialised = true;
-  while(!Serial);
+  //while(!Serial);
 #endif
 
   // initialise SD card
@@ -123,8 +123,8 @@ void setup()
   AudioMemory(80);
 
   // RADIO MUSIC setup
-  analogReference(DEFAULT);
-  analogReadRes(ADC_BITS);
+  //analogReference(DEFAULT);
+  //analogReadRes(ADC_BITS);
   pinMode( NOTE_CV_PIN, INPUT );
   pinMode( TRIG_CV_PIN, INPUT );
 
@@ -146,23 +146,26 @@ void setup()
   drum_4_mixer.set_gain_all_channels( drum_4.voice_mix() );
 
   // set the level of each drum (currently all equal)
-  dry_drum_mixer.set_gain_all_channels( 1.0f / dry_drum_mixer.num_channels() );
+  dry_drum_mixer.set_gain_all_channels( 1.0f / dry_drum_mixer.num_channels() + 0.45f );
 
   // set the reverb
   reverb_mixer.set_gain( 0, 0.0f );   // kick drum
-  reverb_mixer.set_gain( 1, 0.1f );   // add type
-  reverb_mixer.set_gain( 2, 0.1f );   // add return
-  reverb_mixer.set_gain( 3, 0.2f );   // add tink
-  reverb_mixer.set_gain( 4, 0.4f );   // fire hit
+  reverb_mixer.set_gain( 1, 0.4f );   // add type
+  reverb_mixer.set_gain( 2, 0.4f );   // add return
+  reverb_mixer.set_gain( 3, 0.6f );   // add tink
+  reverb_mixer.set_gain( 4, 0.75f );  // fire hit
+
+  freeverb_effect.roomsize( 0.85f );
+  freeverb_effect.damping( 0.5f );
 
   //set the delay
   delay_mixer.set_gain( 0, 0.0f );    // kick drum
   delay_mixer.set_gain( 1, 0.0f );    // add type
   delay_mixer.set_gain( 2, 0.4f );    // add return
-  delay_mixer.set_gain( 3, 0.4f );    // add tink
+  delay_mixer.set_gain( 3, 0.6f );    // add tink
   delay_mixer.set_gain( 4, 0.0f );    // fire hit
   
-  delay_mixer.set_gain( 5, 0.6f );    // feed back
+  delay_mixer.set_gain( 5, 0.0f );    // feed back
 
   delay_effect.delay( 0, 190 );
 
@@ -179,6 +182,7 @@ void setup()
 
 void loop()
 {
+  static bool first_update = true;
   const int time = millis();
   
   trig_led.update( time );
@@ -209,6 +213,26 @@ void loop()
     DEBUG_TEXT_LINE(desired_delay_ms);
     delay_effect.delay(0, desired_delay_ms);
   }
+
+  // update delay pot (feedback
+  if( chord_dial.update() || first_update )
+  {
+    const float delay_level = chord_dial.value(1024.0f);
+    DEBUG_TEXT("Set delay:");
+    DEBUG_TEXT_LINE(delay_level);
+    delay_mixer.set_gain( 5, delay_level );
+  }
+  
+  // update reverb pot
+  if( root_dial.update() || first_update )
+  {
+    const float reverb_level = root_dial.value(1024.0f);
+    DEBUG_TEXT("Set reverb:");
+    DEBUG_TEXT_LINE(reverb_level);
+    final_mixer.set_gain( 1, reverb_level );
+  }
+
+  first_update = false;
 
 #ifdef SHOW_PERF
   int perf_time = millis();
