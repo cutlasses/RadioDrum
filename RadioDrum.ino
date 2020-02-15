@@ -92,9 +92,16 @@ AudioConnection       patch_cord_32( final_mixer, 0, audio_output, 0 );
 AudioConnection       patch_cord_33( final_mixer, 1, audio_output, 1 );
 
 volatile boolean g_triggered = false;
+volatile uint32_t g_delta_time_ms = 0;
 
 void notify_trigger()
 {
+  static uint32_t prev_time_ms = 0;
+  const uint32_t time_ms = millis();
+
+  g_delta_time_ms = time_ms - prev_time_ms;
+  prev_time_ms = time_ms;
+  
   g_triggered = true;
 }
 
@@ -111,7 +118,7 @@ void setup()
   SPI.setSCK(14);
   SD.begin();
 
-  AudioMemory(64);
+  AudioMemory(80);
 
   // RADIO MUSIC setup
   analogReference(DEFAULT);
@@ -148,11 +155,14 @@ void setup()
 
   //set the delay
   delay_mixer.set_gain( 0, 0.0f );    // kick drum
-  delay_mixer.set_gain( 1, 0.4f );    // add type
+  delay_mixer.set_gain( 1, 0.0f );    // add type
   delay_mixer.set_gain( 2, 0.4f );    // add return
   delay_mixer.set_gain( 3, 0.4f );    // add tink
-  delay_mixer.set_gain( 4, 0.4f );    // fire hit
-  delay_mixer.set_gain( 5, 0.4f );    // feed back
+  delay_mixer.set_gain( 4, 0.0f );    // fire hit
+  
+  delay_mixer.set_gain( 5, 0.6f );    // feed back
+
+  delay_effect.delay( 0, 200 );
 
   // set master mixer
   final_mixer.set_gain_all_channels( 1.0f );
@@ -185,6 +195,8 @@ void loop()
 
     trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
   }
+
+  DEBUG_TEXT_LINE(g_delta_time_ms);
 
 #ifdef SHOW_PERF
   int perf_time = millis();

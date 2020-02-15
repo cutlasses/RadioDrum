@@ -130,15 +130,16 @@ void SEQUENCE::clock(int id)
   const TRIGGER& trig = m_sequence[m_beat];
   if( trig.m_pitch != TRIGGER::EMPTY )
   {
-    // TODO use value to set pitch and volume
     m_drum->trigger(trig.m_pitch, trig.m_velocity / 255.0f);
 
+    /*
     DEBUG_TEXT("TRIG id:");
     DEBUG_TEXT(id);
     DEBUG_TEXT(" p:");
     DEBUG_TEXT(trig.m_pitch);
     DEBUG_TEXT(" v:");
     DEBUG_TEXT_LINE(trig.m_velocity / 255.0f);
+    */
   }
 
   m_beat = (m_beat + 1) % m_sequence_size;
