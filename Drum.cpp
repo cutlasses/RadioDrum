@@ -125,15 +125,17 @@ bool SEQUENCE::read(File& file)
   return m_sequence_size > 0;
 }
 
-void SEQUENCE::clock()
+void SEQUENCE::clock(int id)
 {
   const TRIGGER& trig = m_sequence[m_beat];
-  if( trig.m_pitch >= 0 )
+  if( trig.m_pitch != TRIGGER::EMPTY )
   {
     // TODO use value to set pitch and volume
     m_drum->trigger(trig.m_pitch, trig.m_velocity / 255.0f);
 
-    DEBUG_TEXT("TRIG p:");
+    DEBUG_TEXT("TRIG id:");
+    DEBUG_TEXT(id);
+    DEBUG_TEXT(" p:");
     DEBUG_TEXT(trig.m_pitch);
     DEBUG_TEXT(" v:");
     DEBUG_TEXT_LINE(trig.m_velocity / 255.0f);
@@ -174,8 +176,9 @@ void PATTERN::read( const char* filename, const DRUM_SET& drums )
 
 void PATTERN::clock()
 {
+  int id = 0;
   for( SEQUENCE& seq : m_sequences )
   {
-    seq.clock();
+    seq.clock(id++);
   }
 }

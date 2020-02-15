@@ -32,7 +32,7 @@ class SEQUENCE
 {
   struct TRIGGER
   {
-    static constexpr int EMPTY                                                = -1;
+    static constexpr int EMPTY                                                = -127;
     int8_t                                                m_pitch             = EMPTY;
     uint8_t                                               m_velocity          = 255;
   };
@@ -49,7 +49,7 @@ public:
   SEQUENCE( DRUM& drum );
 
   bool                                                    read(File& file);
-  void                                                    clock();
+  void                                                    clock(int id);
 };
 
 using SEQUENCE_SET = std::array<SEQUENCE, MAX_DRUMS>;

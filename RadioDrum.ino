@@ -61,8 +61,8 @@ AudioConnection       patch_cord_5( drum_3.voice(0), 0, drum_3_mixer, 0 );
 AudioConnection       patch_cord_6( drum_3.voice(1), 0, drum_3_mixer, 1 );
 AudioConnection       patch_cord_7( drum_4.voice(0), 0, drum_4_mixer, 0 );
 AudioConnection       patch_cord_8( drum_4.voice(1), 0, drum_4_mixer, 1 );
-AudioConnection       patch_cord_9( drum_5.voice(0), 0, drum_4_mixer, 0 );
-AudioConnection       patch_cord_10( drum_5.voice(1), 0, drum_4_mixer, 1 );
+AudioConnection       patch_cord_9( drum_5.voice(0), 0, drum_5_mixer, 0 );
+AudioConnection       patch_cord_10( drum_5.voice(1), 0, drum_5_mixer, 1 );
 
 AudioConnection       patch_cord_11( drum_1_mixer, 0, dry_drum_mixer, 0 );
 AudioConnection       patch_cord_12( drum_2_mixer, 0, dry_drum_mixer, 1 );
@@ -128,7 +128,7 @@ void setup()
   drums[2] = &drum_3;
   drums[3] = &drum_4;
   drums[4] = &drum_5;
-  pattern_1.read("p2.txt", drums);
+  pattern_1.read("p1.txt", drums);
 
   // set mix for drum voices within each drum
   drum_1_mixer.set_gain_all_channels( drum_1.voice_mix() );
@@ -162,7 +162,7 @@ void setup()
 
   delay(100);
 
-  DEBUG_TEXT("Setup complete");
+  DEBUG_TEXT_LINE("Setup complete");
 }
 
 void loop()
