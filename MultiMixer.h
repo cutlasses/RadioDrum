@@ -5,7 +5,7 @@
 #include "util.h"
 
 // based on Teensy audio library AudioMixer4
-// NOTE currently not optimised for Teensy 4
+// NOTE there appears to be a more efficient version
 template<int32_t NUM_CHANNELS>
 class MULTI_MIXER : public AudioStream
 {
@@ -56,10 +56,11 @@ public:
     }
   }
   
-  void gain(unsigned int channel, float gain)
+  void set_gain(int32_t channel, float gain)
   {
     if( channel >= NUM_CHANNELS )
     {
+      DEBUG_TEXT_LINE("Invalid channel");
       return;
     }
 
@@ -67,7 +68,19 @@ public:
 
     m_channel_mults[channel] = gain * UNITY_GAIN;
   }
-  
+
+  void set_gain_all_channels( float gain )
+  {
+    for( int32_t channel = 0; channel < NUM_CHANNELS; ++channel )
+    {
+      set_gain( channel, gain );
+    }
+  }
+
+  constexpr int32_t num_channels() const
+  {
+    return NUM_CHANNELS;
+  }
   
 private:
 
@@ -110,5 +123,8 @@ private:
   audio_block_t*      m_input_queue_array[NUM_CHANNELS];
 };
 
+using MultiMixer2 = MULTI_MIXER<2>;
+using MultiMixer3 = MULTI_MIXER<3>;
 using MultiMixer4 = MULTI_MIXER<4>;
-
+using MultiMixer5 = MULTI_MIXER<5>;
+using MultiMixer6 = MULTI_MIXER<6>;

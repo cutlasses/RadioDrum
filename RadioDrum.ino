@@ -36,11 +36,19 @@ DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSamplePop
 PATTERN               pattern_1;
 
 
-MultiMixer4           drum_1_mixer;
-MultiMixer4           drum_2_mixer;
-MultiMixer4           drum_3_mixer;
-MultiMixer4           drum_4_mixer;
-MultiMixer4           master_drum_mixer;
+MultiMixer2           drum_1_mixer;
+MultiMixer2           drum_2_mixer;
+MultiMixer2           drum_3_mixer;
+MultiMixer2           drum_4_mixer;
+MultiMixer2           drum_5_mixer;
+MultiMixer5           dry_drum_mixer;
+MultiMixer5           reverb_mixer;
+MultiMixer6           delay_mixer;
+MultiMixer3           final_mixer;
+
+AudioEffectDelay      delay_effect;
+AudioEffectFreeverb   freeverb_effect;
+
 
 AudioOutputAnalog     audio_output;
 
@@ -52,12 +60,35 @@ AudioConnection       patch_cord_5( drum_3.voice(0), 0, drum_3_mixer, 0 );
 AudioConnection       patch_cord_6( drum_3.voice(1), 0, drum_3_mixer, 1 );
 AudioConnection       patch_cord_7( drum_4.voice(0), 0, drum_4_mixer, 0 );
 AudioConnection       patch_cord_8( drum_4.voice(1), 0, drum_4_mixer, 1 );
-AudioConnection       patch_cord_9( drum_1_mixer, 0, master_drum_mixer, 0 );
-AudioConnection       patch_cord_10( drum_2_mixer, 0, master_drum_mixer, 1 );
-AudioConnection       patch_cord_11( drum_3_mixer, 0, master_drum_mixer, 2 );
-AudioConnection       patch_cord_12( drum_4_mixer, 0, master_drum_mixer, 3 );
-AudioConnection       patch_cord_13( master_drum_mixer, 0, audio_output, 0 );
-AudioConnection       patch_cord_14( master_drum_mixer, 1, audio_output, 1 );
+AudioConnection       patch_cord_9( drum_5.voice(0), 0, drum_4_mixer, 0 );
+AudioConnection       patch_cord_10( drum_5.voice(1), 0, drum_4_mixer, 1 );
+
+AudioConnection       patch_cord_11( drum_1_mixer, 0, dry_drum_mixer, 0 );
+AudioConnection       patch_cord_12( drum_2_mixer, 0, dry_drum_mixer, 1 );
+AudioConnection       patch_cord_13( drum_3_mixer, 0, dry_drum_mixer, 2 );
+AudioConnection       patch_cord_14( drum_4_mixer, 0, dry_drum_mixer, 3 );
+AudioConnection       patch_cord_15( drum_5_mixer, 0, dry_drum_mixer, 4 );
+AudioConnection       patch_cord_16( dry_drum_mixer, 0, final_mixer, 0 );
+
+AudioConnection       patch_cord_17( drum_1_mixer, 0, reverb_mixer, 0 );
+AudioConnection       patch_cord_18( drum_2_mixer, 0, reverb_mixer, 1 );
+AudioConnection       patch_cord_19( drum_3_mixer, 0, reverb_mixer, 2 );
+AudioConnection       patch_cord_20( drum_4_mixer, 0, reverb_mixer, 3 );
+AudioConnection       patch_cord_21( drum_5_mixer, 0, reverb_mixer, 4 );
+AudioConnection       patch_cord_22( reverb_mixer, 0, freeverb_effect, 0 );
+AudioConnection       patch_cord_23( freeverb_effect, 0, final_mixer, 1 );
+
+AudioConnection       patch_cord_24( drum_1_mixer, 0, delay_mixer, 0 );
+AudioConnection       patch_cord_25( drum_2_mixer, 0, delay_mixer, 1 );
+AudioConnection       patch_cord_26( drum_3_mixer, 0, delay_mixer, 2 );
+AudioConnection       patch_cord_27( drum_4_mixer, 0, delay_mixer, 3 );
+AudioConnection       patch_cord_28( drum_5_mixer, 0, delay_mixer, 4 );
+AudioConnection       patch_cord_29( delay_mixer, 0, delay_effect, 0 );
+AudioConnection       patch_cord_30( delay_effect, 0, final_mixer, 2 );
+AudioConnection       patch_cord_31( delay_effect, 0, delay_mixer, 5 );   // feedback
+
+AudioConnection       patch_cord_32( final_mixer, 0, audio_output, 0 );
+AudioConnection       patch_cord_33( final_mixer, 1, audio_output, 1 );
 
 volatile boolean g_triggered = false;
 
@@ -98,17 +129,32 @@ void setup()
   drums[4] = &drum_5;
   pattern_1.read("p1.txt", drums);
 
-  auto setup_mix =[](MultiMixer4& mixer, int num_channels, float gain)
-  {
-    for( int ci = 0; ci < num_channels; ++ci )
-    {
-      drum_1_mixer.gain(ci, gain );
-    }    
-  };
+  // set mix for drum voices within each drum
+  drum_1_mixer.set_gain_all_channels( drum_1.voice_mix() );
+  drum_2_mixer.set_gain_all_channels( drum_2.voice_mix() );
+  drum_3_mixer.set_gain_all_channels( drum_3.voice_mix() );
+  drum_4_mixer.set_gain_all_channels( drum_4.voice_mix() );
 
-  setup_mix( drum_1_mixer, drum_1.num_voices_per_drum(), drum_1.voice_mix() );
+  // set the level of each drum (currently all equal)
+  dry_drum_mixer.set_gain_all_channels( 1.0f / dry_drum_mixer.num_channels() );
 
-  setup_mix( drum_4_mixer, 4, 0.25f );
+  // set the reverb
+  reverb_mixer.set_gain( 0, 0.0f );   // kick drum
+  reverb_mixer.set_gain( 1, 0.2f );   // add hit
+  reverb_mixer.set_gain( 2, 0.2f );   // add return
+  reverb_mixer.set_gain( 3, 0.2f );   // fire hit
+  reverb_mixer.set_gain( 4, 0.2f );   // pop
+
+  //set the delay
+  delay_mixer.set_gain( 0, 0.0f );    // kick drum
+  delay_mixer.set_gain( 1, 0.4f );    // add hit
+  delay_mixer.set_gain( 2, 0.4f );    // add return
+  delay_mixer.set_gain( 3, 0.4f );    // fire hit
+  delay_mixer.set_gain( 4, 0.4f );    // pop
+  delay_mixer.set_gain( 5, 0.4f );    // feed back
+
+  // set master mixer
+  final_mixer.set_gain_all_channels( 1.0f );
 
   trig_led.setup();
   trig_button.setup();
