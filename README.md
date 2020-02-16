@@ -12,4 +12,4 @@ https://youtu.be/lzOFfdgeuCY
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=lzOFfdgeuCY
 " target="_blank"><img src="http://img.youtube.com/vi/lzOFfdgeuCY/0.jpg" 
-alt="RadioDrum Video" width="240" height="180" border="10" /></a>
+alt="RadioDrum Video" width="480" height="360" border="10" /></a>
