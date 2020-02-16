@@ -9,3 +9,7 @@ https://github.com/PaulStoffregen/Audio/blob/master/extras/wav2sketch/wav2sketch
 use '-16' on the command line when you run it. The code is setup for uncompressed 16-bit uncompressed audio, but wav2sketch uses u-law encoding by default.
 
 https://youtu.be/lzOFfdgeuCY
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=lzOFfdgeuCY
+" target="_blank"><img src="http://img.youtube.com/vi/lzOFfdgeuCY/0.jpg" 
+alt="RadioDrum Video" width="240" height="180" border="10" /></a>
