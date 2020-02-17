@@ -78,6 +78,9 @@ public:
   LED();              // to allow for arrays
   LED( int data_pin, bool analog );
 
+  bool          is_active() const;
+  bool          is_flash_active() const;
+
   void          set_active( bool active );
   void          flash_on( uint32_t time_ms, uint32_t flash_duration );
   void          set_brightness( float brightness );
@@ -111,5 +114,3 @@ class PUSH_AND_TURN
 
   void          update();
 };
-
-

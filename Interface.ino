@@ -164,6 +164,16 @@ LED::LED( int data_pin, bool analog ) :
 {
 }
 
+bool LED::is_active() const
+{
+  return m_is_active;
+}
+
+bool LED::is_flash_active() const
+{
+  return m_flash_active;
+}
+
 void LED::set_active( bool active )
 {
   m_is_active = active;
@@ -268,4 +278,3 @@ void PUSH_AND_TURN::update()
     m_primary_value = m_dial.value();
   }
 }
-

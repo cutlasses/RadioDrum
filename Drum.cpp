@@ -27,9 +27,14 @@ SEQUENCE::SEQUENCE( DRUM& drum ) :
 {
 }
 
+int SEQUENCE::sequence_length() const
+{
+  return m_sequence_length;
+}
+
 bool SEQUENCE::read(File& file)
 {
-  m_sequence_size = 0;
+  m_sequence_length = 0;
 
   auto consume_comma_check_end = [&file]() -> bool
   {
@@ -61,7 +66,7 @@ bool SEQUENCE::read(File& file)
     if( c == '-' )
     {
       // no trigger
-      m_sequence[m_sequence_size++] = { TRIGGER::EMPTY, 0 };
+      m_sequence[m_sequence_length++] = { TRIGGER::EMPTY, 0 };
 
        DEBUG_TEXT("Trig{EMPTY} ");
 
@@ -101,7 +106,7 @@ bool SEQUENCE::read(File& file)
       const int8_t pitch            = read_int(',');
       const uint8_t velocity        = read_int('}');
 
-      m_sequence[m_sequence_size++] = { pitch, velocity };
+      m_sequence[m_sequence_length++] = { pitch, velocity };
 
       DEBUG_TEXT("Trig{");
       DEBUG_TEXT(pitch);
@@ -120,12 +125,12 @@ bool SEQUENCE::read(File& file)
     }
   }
 
-  DEBUG_TEXT(m_sequence_size);
+  DEBUG_TEXT(m_sequence_length);
   DEBUG_TEXT_LINE(" <END>");
-  return m_sequence_size > 0;
+  return m_sequence_length > 0;
 }
 
-void SEQUENCE::clock(int id)
+bool SEQUENCE::clock(int id)
 {
   const TRIGGER& trig = m_sequence[m_beat];
   if( trig.m_pitch != TRIGGER::EMPTY )
@@ -142,20 +147,29 @@ void SEQUENCE::clock(int id)
     */
   }
 
-  m_beat = (m_beat + 1) % m_sequence_size;
+  bool cycle_complete = false;
+  if( ++m_beat >= m_sequence_length )
+  {
+    m_beat          = 0;
+    cycle_complete  = true;
+  }
+  
+  return cycle_complete;
 }
 
 ////////////////////////////////////////////////////////////
 
-void PATTERN::read( const char* filename, const DRUM_SET& drums ) 
+bool PATTERN::read( const char* filename, const DRUM_SET& drums ) 
 {
   File pattern_file = SD.open(filename, FILE_READ);
 
   if( !pattern_file )
   {
-    DEBUG_TEXT("Unable to open file:");
-    DEBUG_TEXT_LINE(filename);
+    return false;
   }
+
+  DEBUG_TEXT("Loading:")
+  DEBUG_TEXT_LINE(filename);
 
   size_t di = 0;
   for( DRUM* drum : drums )
@@ -164,8 +178,15 @@ void PATTERN::read( const char* filename, const DRUM_SET& drums )
   }
 
   size_t num_sequences = 0;
+  int largest_sequence_length = 0;
   while( num_sequences < m_sequences.size() && m_sequences[num_sequences].read(pattern_file) )
   {
+    const int sequence_length = m_sequences[num_sequences].sequence_length();
+    if( sequence_length > largest_sequence_length )
+    {
+      largest_sequence_length = sequence_length;
+      m_leading_sequence      = num_sequences;
+    }
     ++num_sequences;
   }
 
@@ -173,13 +194,69 @@ void PATTERN::read( const char* filename, const DRUM_SET& drums )
   {
     DEBUG_TEXT_LINE("Inconsistent number of sequences and drums");
   }
+
+  return true;
 }
 
-void PATTERN::clock()
+bool PATTERN::clock()
 {
-  int id = 0;
+  bool leading_cycle_complete = true;
+  int index = 0;
   for( SEQUENCE& seq : m_sequences )
   {
-    seq.clock(id++);
+    bool cycle_complete = seq.clock(index);
+
+    if( index == m_leading_sequence )
+    {
+      leading_cycle_complete = cycle_complete;
+    }
+  }
+
+  return leading_cycle_complete;
+}
+
+////////////////////////////////////////////////////////////
+
+bool PATTERN_SET::is_pattern_pending() const
+{
+  return m_current_pattern != m_pending_pattern;
+}
+
+int PATTERN_SET::current_pattern() const
+{
+  return m_current_pattern;
+}
+
+int PATTERN_SET::pending_pattern() const
+{
+  return m_pending_pattern;
+}
+
+void PATTERN_SET::read( const DRUM_SET& drums )
+{
+  const char* pattern_filenames[MAX_PATTERNS] = { "p1.txt", "p2.txt", "p3.txt", "p4.txt" };
+
+  m_num_patterns = 0;
+  for( const char* filename : pattern_filenames )
+  {
+    if( !m_patterns[m_num_patterns++].read( filename, drums ) )
+    {
+      break;
+    }
+  }
+}
+
+void PATTERN_SET::advance_pending_pattern()
+{
+  m_pending_pattern = ( m_pending_pattern + 1 ) % m_num_patterns;
+}
+
+void PATTERN_SET::clock()
+{
+  const bool cycle_complete = m_patterns[m_current_pattern].clock();
+
+  if( cycle_complete && m_pending_pattern != m_current_pattern )
+  {
+    m_current_pattern = m_pending_pattern;
   }
 }

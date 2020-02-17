@@ -24,10 +24,13 @@ constexpr int         TRIG_FLASH_TIME_MS(100);
 
 constexpr uint32_t    MAX_DELAY_TIME_MS(180);    // memory is limited, so only short delays possible
 
+constexpr int         NUM_PATTERN_LEDS(4);
+
 LED                   trig_led(RESET_LED_PIN, false);
 BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
+std::array<LED, NUM_PATTERN_LEDS>    pattern_leds = { LED(6,false), LED(5,false), LED(4,false), LED(3,false) };
 
 DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );               // synthesised kick
 DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleType[0])) );               // vintage adding machine key press
@@ -36,7 +39,7 @@ DRUM                  drum_4( reinterpret_cast<const uint16_t*>(&(AudioSampleTin
 DRUM                  drum_5( reinterpret_cast<const uint16_t*>(&(AudioSampleFirehit[0])) );            // hitting a cast iron fire
 
 
-PATTERN               pattern_1;
+PATTERN_SET           patterns;
 
 
 MultiMixer2           drum_1_mixer;
@@ -137,7 +140,7 @@ void setup()
   drums[2] = &drum_3;
   drums[3] = &drum_4;
   drums[4] = &drum_5;
-  pattern_1.read("p1.txt", drums);
+  patterns.read(drums);
 
   // set mix for drum voices within each drum
   drum_1_mixer.set_gain_all_channels( drum_1.voice_mix() );
@@ -175,9 +178,36 @@ void setup()
   trig_led.setup();
   trig_button.setup();
 
+  for( LED& led : pattern_leds )
+  {
+    led.setup();
+  }
+
   delay(100);
 
   DEBUG_TEXT_LINE("Setup complete");
+}
+
+void update_pattern_leds()
+{
+  for( int li = 0; li < NUM_PATTERN_LEDS; ++li )
+  {
+    LED& led = pattern_leds[li];
+    if( li == patterns.current_pattern() )
+    {
+      led.set_active(true);
+    }
+    else if(  patterns.is_pattern_pending() &&
+              li == patterns.pending_pattern() &&
+              !led.is_flash_active() )
+    {
+      led.flash_on(millis(), 300);
+    }
+    else
+    {
+      led.set_active(false);
+    }
+  }  
 }
 
 void loop()
@@ -190,14 +220,17 @@ void loop()
   
   if( trig_button.single_click() )
   {
-    g_triggered = true;
+    // advance the pattern
+    patterns.advance_pending_pattern();
   }
+
+  update_pattern_leds();
   
   if( g_triggered )
   {
     g_triggered = false;
 
-    pattern_1.clock();
+    patterns.clock();
 
     trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
   }
