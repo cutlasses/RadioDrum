@@ -150,8 +150,10 @@ LED::LED() :
   m_data_pin( 0 ),
   m_is_active( false ),
   m_flash_active( false ),
+  m_flash_continuous( false ),
   m_analog( false ),
-  m_flash_off_time_ms( 0 )
+  m_flash_off_time_ms( 0 ),
+  m_flash_duration_ms( 0 )
 {
 }
 
@@ -159,8 +161,10 @@ LED::LED( int data_pin, bool analog ) :
   m_data_pin( data_pin ),
   m_is_active( false ),
   m_flash_active( false ),
+  m_flash_continuous( false ),
   m_analog( analog ),
-  m_flash_off_time_ms( 0 )
+  m_flash_off_time_ms( 0 ),
+  m_flash_duration_ms( 0 )
 {
 }
 
@@ -177,14 +181,22 @@ bool LED::is_flash_active() const
 void LED::set_active( bool active )
 {
   m_is_active = active;
+
+  if( m_is_active )
+  {
+    m_flash_active      = false;
+    m_flash_continuous  = false;
+  }
 }
 
-void LED::flash_on( uint32_t time_ms, uint32_t flash_duration_ms )
+void LED::flash_on( uint32_t time_ms, uint32_t flash_duration_ms, bool continuous )
 {
   m_flash_active      = true;
   m_flash_off_time_ms = time_ms + flash_duration_ms;
 
   m_is_active         = true;
+  m_flash_continuous  = true;
+  m_flash_duration_ms = flash_duration_ms;
 }
 
 void LED::set_brightness( float brightness )
@@ -198,11 +210,24 @@ void LED::setup()
 }
 
 void LED::update( uint32_t time_ms )
-{  
-  if( m_is_active && m_flash_active && time_ms > m_flash_off_time_ms )
+{
+  if( m_flash_active )
   {
-    m_is_active     = false;
-    m_flash_active  = false;
+    if( time_ms > m_flash_off_time_ms )
+    {
+      if( m_flash_continuous )
+      {
+        // toggle flash
+        m_is_active = !m_is_active;
+        m_flash_off_time_ms = time_ms + m_flash_duration_ms;
+      }
+      else if( m_is_active )
+      {
+        // continuous flash
+        m_is_active     = false;
+        m_flash_active  = false;        
+      }
+    }
   }
 
   if( m_analog )

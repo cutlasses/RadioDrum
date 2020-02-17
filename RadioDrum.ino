@@ -30,7 +30,7 @@ LED                   trig_led(RESET_LED_PIN, false);
 BUTTON                trig_button(TRIG_BUTTON_PIN, false);
 DIAL                  root_dial(ROOT_POT_PIN);
 DIAL                  chord_dial(CHORD_POT_PIN);
-std::array<LED, NUM_PATTERN_LEDS>    pattern_leds = { LED(6,false), LED(5,false), LED(4,false), LED(3,false) };
+std::array<LED, NUM_PATTERN_LEDS>    pattern_leds = { LED(3,false), LED(4,false), LED(5,false), LED(6,false) };
 
 DRUM                  drum_1( reinterpret_cast<const uint16_t*>(&(AudioSampleKick[0])) );               // synthesised kick
 DRUM                  drum_2( reinterpret_cast<const uint16_t*>(&(AudioSampleType[0])) );               // vintage adding machine key press
@@ -123,7 +123,7 @@ void setup()
   SPI.setSCK(14);
   SD.begin();
 
-  AudioMemory(80);
+  AudioMemory(75);
 
   // RADIO MUSIC setup
   //analogReference(DEFAULT);
@@ -188,8 +188,8 @@ void setup()
   DEBUG_TEXT_LINE("Setup complete");
 }
 
-void update_pattern_leds()
-{
+void update_pattern_leds(int32_t time_ms)
+{ 
   for( int li = 0; li < NUM_PATTERN_LEDS; ++li )
   {
     LED& led = pattern_leds[li];
@@ -198,33 +198,38 @@ void update_pattern_leds()
       led.set_active(true);
     }
     else if(  patterns.is_pattern_pending() &&
-              li == patterns.pending_pattern() &&
-              !led.is_flash_active() )
+              li == patterns.pending_pattern() )
     {
-      led.flash_on(millis(), 300);
+      if( !led.is_flash_active() )
+      {
+        led.flash_on(time_ms, 500, true);
+      }
     }
     else
     {
       led.set_active(false);
     }
+
+    led.update(time_ms);
   }  
 }
 
 void loop()
 {
   static bool first_update = true;
-  const int time = millis();
+  const int32_t time_ms = millis();
   
-  trig_led.update( time );
-  trig_button.update( time );
+  trig_led.update( time_ms );
+  trig_button.update( time_ms );
   
   if( trig_button.single_click() )
   {
     // advance the pattern
+    DEBUG_TEXT_LINE("Advance");
     patterns.advance_pending_pattern();
   }
 
-  update_pattern_leds();
+  update_pattern_leds( time_ms );
   
   if( g_triggered )
   {
@@ -232,7 +237,7 @@ void loop()
 
     patterns.clock();
 
-    trig_led.flash_on( time, TRIG_FLASH_TIME_MS );
+    trig_led.flash_on( time_ms, TRIG_FLASH_TIME_MS, false );
   }
 
   // update delay sync
