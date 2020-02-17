@@ -195,7 +195,7 @@ void LED::flash_on( uint32_t time_ms, uint32_t flash_duration_ms, bool continuou
   m_flash_off_time_ms = time_ms + flash_duration_ms;
 
   m_is_active         = true;
-  m_flash_continuous  = true;
+  m_flash_continuous  = continuous;
   m_flash_duration_ms = flash_duration_ms;
 }
 
@@ -218,14 +218,14 @@ void LED::update( uint32_t time_ms )
       if( m_flash_continuous )
       {
         // toggle flash
-        m_is_active = !m_is_active;
+        m_is_active         = !m_is_active;
         m_flash_off_time_ms = time_ms + m_flash_duration_ms;
       }
-      else if( m_is_active )
+      else
       {
-        // continuous flash
-        m_is_active     = false;
-        m_flash_active  = false;        
+        // single flash
+        m_is_active         = false;
+        m_flash_active      = false;        
       }
     }
   }
