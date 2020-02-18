@@ -22,7 +22,7 @@ constexpr int         ADC_MAX_VAL(8192);
 
 constexpr int         TRIG_FLASH_TIME_MS(100);
 
-constexpr uint32_t    MAX_DELAY_TIME_MS(180);    // memory is limited, so only short delays possible
+constexpr uint32_t    MAX_DELAY_TIME_MS(175);    // memory is limited, so only short delays possible
 
 constexpr int         NUM_PATTERN_LEDS(4);
 
