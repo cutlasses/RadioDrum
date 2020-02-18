@@ -119,9 +119,15 @@ bool SEQUENCE::read(File& file)
         break;
        }
     }
+    else if( m_sequence_length == 0 )
+    {
+      DEBUG_TEXT("Trig{EMPTY} ");
+      break;
+    }
     else
     {
       DEBUG_TEXT_LINE("Unknown character at beginning of trigger");
+      break;
     }
   }
 
@@ -190,10 +196,15 @@ bool PATTERN::read( const char* filename, const DRUM_SET& drums )
     ++num_sequences;
   }
 
+  /*
   if( di != num_sequences )
   {
-    DEBUG_TEXT_LINE("Inconsistent number of sequences and drums");
+    DEBUG_TEXT_LINE("Inconsistent number of sequences and drums, some drums will not play");
   }
+  */
+
+  DEBUG_TEXT("Leading_sequence:");
+  DEBUG_TEXT_LINE(m_leading_sequence);
 
   return true;
 }
@@ -206,7 +217,7 @@ bool PATTERN::clock()
   {
     bool cycle_complete = seq.clock(index);
 
-    if( index == m_leading_sequence )
+    if( index++ == m_leading_sequence )
     {
       leading_cycle_complete = cycle_complete;
     }
