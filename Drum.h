@@ -34,7 +34,7 @@ class SEQUENCE
   {
     static constexpr int EMPTY                                                = -127;
     int8_t                                                m_pitch             = EMPTY;
-    uint8_t                                               m_velocity          = 255;
+    uint8_t                                               m_velocity          = 0;
   };
   
   static constexpr int MAX_SEQUENCE_SIZE                                      = 32;
@@ -75,7 +75,7 @@ public:
 class PATTERN_SET
 {
   static constexpr int MAX_PATTERNS                       = 4;
-  std::array<PATTERN, MAX_PATTERNS>                       m_patterns;
+  PATTERN                                                 m_patterns[MAX_PATTERNS];
 
   uint8_t                                                 m_num_patterns    = 0;
   uint8_t                                                 m_current_pattern = 0;

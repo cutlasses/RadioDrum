@@ -141,7 +141,7 @@ bool SEQUENCE::clock(int id)
   const TRIGGER& trig = m_sequence[m_beat];
   if( trig.m_pitch != TRIGGER::EMPTY )
   {
-    m_drum->trigger(trig.m_pitch, trig.m_velocity / 255.0f);
+    m_drum->trigger(trig.m_pitch, trig.m_velocity / 127.0f);
 
     /*
     DEBUG_TEXT("TRIG id:");
