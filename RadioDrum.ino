@@ -121,7 +121,11 @@ void setup()
   // initialise SD card
   SPI.setMOSI(7);
   SPI.setSCK(14);
-  SD.begin();
+
+  if( !SD.begin() )
+  {
+    DEBUG_TEXT("No SD!!\n");
+  }
 
   AudioMemory(75);
 
